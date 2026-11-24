@@ -10,7 +10,10 @@ PY=/opt/runtime-venv/bin/pip
 # (expected: upgrading xgrammar conflicts with vllm's pin). Capture stderr and
 # only surface it if pip actually fails.
 err="$(mktemp)"
-"$PY" install -q -U "xgrammar>=0.2.4" 2>"$err" || { cat "$err" >&2; exit 1; }
+# Pinned: an unbounded upgrade pulls apache-tvm-ffi >= 0.1.16, whose registry
+# breaks the TVM bundled with tilelang 0.1.9 ("attribute '__dict__' of 'type'
+# objects is not writable"), and boot then fails with "tilelang is required".
+"$PY" install -q "xgrammar==0.2.7" "apache-tvm-ffi==0.1.10" 2>"$err" || { cat "$err" >&2; exit 1; }
 "$PY" install -q "transformers==5.13.1" 2>"$err" || { cat "$err" >&2; exit 1; }
 rm -f "$err"
 "$PY" check >/dev/null 2>&1 || true
